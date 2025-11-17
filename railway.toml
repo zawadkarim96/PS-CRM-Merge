@@ -1,8 +1,13 @@
 [build]
 # Force Nixpacks to use the sales app subdirectory as the project root.
 builder = "NIXPACKS"
-buildCommand = "cd PS-SALES-main && pip install -r requirements.txt"
-startCommand = "cd PS-SALES-main && streamlit run sales_app.py --server.port $PORT --server.address 0.0.0.0"
+
+# Explicitly run the build and start commands through a shell so we can change
+# into the sales app directory. Without the shell wrapper Nixpacks executes the
+# command directly, so the `cd` gets interpreted as part of the executable name
+# and the container fails to start.
+buildCommand = "bash -lc 'cd PS-SALES-main && pip install -r requirements.txt'"
+startCommand = "bash -lc 'cd PS-SALES-main && streamlit run sales_app.py --server.port $PORT --server.address 0.0.0.0'"
 
 [variables]
 # Use an internal data directory that works on Railway's ephemeral filesystem.
