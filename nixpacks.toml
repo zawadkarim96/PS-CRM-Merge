@@ -1,6 +1,5 @@
 # Ensure Nixpacks provisions Python even though the project files live in a
-# subdirectory. Using python3's built-in pip avoids missing-binary failures
-# during the build phase.
+# subdirectory.
 providers = ["python"]
 
 [phases.setup]
@@ -9,7 +8,6 @@ nixPkgs = ["python311Full"]
 
 [phases.install]
 cmds = [
-  "cd PS-SALES-main && python3 -m ensurepip --upgrade",
   "cd PS-SALES-main && python3 -m pip install --upgrade pip",
   "cd PS-SALES-main && python3 -m pip install -r requirements.txt"
 ]
