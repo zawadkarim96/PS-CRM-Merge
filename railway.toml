@@ -7,6 +7,11 @@ builder = "NIXPACKS"
 # command directly, so the `cd` gets interpreted as part of the executable name
 # and the container fails to start.
 buildCommand = "bash -lc 'cd PS-SALES-main && pip install -r requirements.txt'"
+
+[deploy]
+# Provide the runtime command from the manifest section Railway reads for start
+# commands. Keeping the `cd` in the command ensures the Streamlit app launches
+# from the sales project directory.
 startCommand = "bash -lc 'cd PS-SALES-main && streamlit run sales_app.py --server.port $PORT --server.address 0.0.0.0'"
 
 [variables]
