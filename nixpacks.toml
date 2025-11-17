@@ -9,6 +9,7 @@ nixPkgs = ["python311Full"]
 
 [phases.install]
 cmds = [
+  "cd PS-SALES-main && python3 -m ensurepip --upgrade",
   "cd PS-SALES-main && python3 -m pip install --upgrade pip",
   "cd PS-SALES-main && python3 -m pip install -r requirements.txt"
 ]
