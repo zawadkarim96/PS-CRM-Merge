@@ -27,7 +27,7 @@ Railway expects a manifest at the service root. Because the app lives in
 `PS-SALES-main`, a `railway.toml` is provided at the repo root to point Railway
 at the correct directory.
 
-- **Build command:** `cd PS-SALES-main && pip install -r requirements.txt`
+- **Build command:** `cd PS-SALES-main && python3 -m ensurepip --upgrade && python3 -m pip install --upgrade pip && python3 -m pip install -r requirements.txt`
 - **Start command:** `cd PS-SALES-main && streamlit run sales_app.py --server.port $PORT --server.address 0.0.0.0`
 - **Data directory:** Set via `PS_SALES_DATA_DIR=/workspace/data` to use a
   writable path inside the container.
