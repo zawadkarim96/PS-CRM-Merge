@@ -1,0 +1,9 @@
+[build]
+# Force Nixpacks to use the sales app subdirectory as the project root.
+builder = "NIXPACKS"
+buildCommand = "cd PS-SALES-main && pip install -r requirements.txt"
+startCommand = "cd PS-SALES-main && streamlit run sales_app.py --server.port $PORT --server.address 0.0.0.0"
+
+[variables]
+# Use an internal data directory that works on Railway's ephemeral filesystem.
+PS_SALES_DATA_DIR = "/workspace/data"
