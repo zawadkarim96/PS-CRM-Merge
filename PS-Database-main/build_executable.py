@@ -121,10 +121,7 @@ def build_executable(python_path: Path) -> None:
     """Invoke PyInstaller with the required options to bundle the app."""
 
     data_separator = ";" if os.name == "nt" else ":"
-    add_data_args = [
-        f"{ROOT_DIR / 'app.py'}{data_separator}{APP_DEST_DIR}",
-        f"{ROOT_DIR / 'import_template.xlsx'}{data_separator}{APP_DEST_DIR}",
-    ]
+    add_data_args = [f"{ROOT_DIR / 'app.py'}{data_separator}{APP_DEST_DIR}"]
 
     icon_file = _ensure_icon_file()
 
@@ -139,8 +136,6 @@ def build_executable(python_path: Path) -> None:
         APP_DISPLAY_NAME,
         "--add-data",
         add_data_args[0],
-        "--add-data",
-        add_data_args[1],
         "--icon",
         str(icon_file),
         str(ENTRY_POINT),

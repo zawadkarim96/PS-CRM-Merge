@@ -1,0 +1,4 @@
+# Ignore unused binary artifacts
+PS-Database-main/letterhead
+PS-Database-main/ps_letterhead.png
+PS-Database-main/import_template.xlsx
