@@ -1,0 +1,17 @@
+# Ensure Nixpacks provisions Python even though the project files live in a
+# subdirectory. Using python3's built-in pip avoids missing-binary failures
+# during the build phase.
+providers = ["python"]
+
+[phases.setup]
+# python311Full bundles pip so the install phase can run without extra packages.
+nixPkgs = ["python311Full"]
+
+[phases.install]
+cmds = [
+  "cd PS-SALES-main && python3 -m pip install --upgrade pip",
+  "cd PS-SALES-main && python3 -m pip install -r requirements.txt"
+]
+
+[start]
+cmd = "cd PS-SALES-main && streamlit run sales_app.py --server.port $PORT --server.address 0.0.0.0"
