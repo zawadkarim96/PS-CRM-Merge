@@ -5,10 +5,8 @@ builder = "NIXPACKS"
 # Explicitly run the build and start commands through a shell so we can change
 # into the sales app directory. Without the shell wrapper Nixpacks executes the
 # command directly, so the `cd` gets interpreted as part of the executable name
-# and the container fails to start. The build installs the app requirements and
-# includes an explicit ensurepip call to cover runtimes that do not ship with
-# pip enabled by default.
-buildCommand = "bash -lc 'cd PS-SALES-main && python3 -m ensurepip --upgrade && python3 -m pip install --upgrade pip && python3 -m pip install -r requirements.txt'"
+# and the container fails to start. The build installs the app requirements.
+buildCommand = "bash -lc 'cd PS-SALES-main && python3 -m pip install --upgrade pip && python3 -m pip install -r requirements.txt'"
 
 [deploy]
 # Provide the runtime command from the manifest section Railway reads for start

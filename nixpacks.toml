@@ -4,14 +4,10 @@ providers = ["python"]
 
 [phases.setup]
 # python311Full bundles pip so the install phase can run without extra packages.
-# An explicit ensurepip step is still included later to cover runtimes that do
-# not ship with pip enabled by default.
 nixPkgs = ["python311Full"]
 
 [phases.install]
 cmds = [
-  # Bootstrap pip in case the base Python image does not ship with it.
-  "cd PS-SALES-main && python3 -m ensurepip --upgrade",
   "cd PS-SALES-main && python3 -m pip install --upgrade pip",
   "cd PS-SALES-main && python3 -m pip install -r requirements.txt"
 ]
