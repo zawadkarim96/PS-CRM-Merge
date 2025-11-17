@@ -21,13 +21,14 @@ from __future__ import annotations
 
 import contextlib
 import os
-import shutil
 import socket
 import sys
 import threading
 import time
 from pathlib import Path
+from typing import Sequence
 
+import pandas as pd
 from storage_paths import get_storage_dir
 
 from streamlit.web import bootstrap
@@ -57,13 +58,36 @@ def resource_path(relative_name: str) -> Path:
 
 
 def ensure_template_file(storage_dir: Path) -> None:
-    """Copy the Excel import template into the storage directory if needed."""
+    """Create the Excel import template in the storage directory if missing."""
 
-    template_source = resource_path(IMPORT_TEMPLATE_NAME)
     template_target = storage_dir / IMPORT_TEMPLATE_NAME
+    if template_target.exists():
+        return
 
-    if template_source.exists() and not template_target.exists():
-        shutil.copy2(template_source, template_target)
+    template_target.parent.mkdir(parents=True, exist_ok=True)
+
+    sample_rows: Sequence[dict[str, object]] = (
+        {
+            "date": "25-08-2025",
+            "customer_name": "M/S Hasan Traders",
+            "address": "Dhaka",
+            "phone": "+8801xxxxxxxxx",
+            "product": "250KVA-Cummins",
+            "price": 350000,
+        },
+        {
+            "date": "27-08-2025",
+            "customer_name": "ABC Steel Ltd",
+            "address": "Chittagong",
+            "phone": "+8801yyyyyyyyy",
+            "product": "400KVA-Perkins",
+            "price": 540000,
+        },
+    )
+
+    sample_df = pd.DataFrame(sample_rows)
+    with pd.ExcelWriter(template_target, engine="xlsxwriter") as writer:
+        sample_df.to_excel(writer, index=False)
 
 
 def main() -> None:

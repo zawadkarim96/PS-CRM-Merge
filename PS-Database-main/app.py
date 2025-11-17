@@ -40,6 +40,7 @@ DEFAULT_BASE_DIR = get_storage_dir()
 BASE_DIR = Path(os.getenv("APP_STORAGE_DIR", DEFAULT_BASE_DIR))
 BASE_DIR.mkdir(parents=True, exist_ok=True)
 DB_PATH = os.getenv("DB_PATH", str(BASE_DIR / "ps_crm.db"))
+os.environ.setdefault("DB_PATH", DB_PATH)
 DATE_FMT = "%d-%m-%Y"
 CURRENCY_SYMBOL = os.getenv("APP_CURRENCY_SYMBOL", "₹")
 
@@ -523,6 +524,10 @@ def init_schema(conn):
     ensure_upload_dirs()
     conn.executescript(SCHEMA_SQL)
     ensure_schema_upgrades(conn)
+    with contextlib.suppress(Exception):
+        import sales_app  # type: ignore
+
+        sales_app.init_db()
     conn.commit()
     # bootstrap admin if empty
     cur = conn.execute("SELECT COUNT(*) FROM users")
@@ -543,6 +548,9 @@ def ensure_schema_upgrades(conn):
         if not has_column(table, column):
             conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
 
+    add_column("users", "display_name", "TEXT")
+    add_column("users", "designation", "TEXT")
+    add_column("users", "phone", "TEXT")
     add_column("customers", "company_name", "TEXT")
     add_column("customers", "delivery_address", "TEXT")
     add_column("customers", "remarks", "TEXT")
@@ -7303,7 +7311,7 @@ def import_page(conn):
     skip_blanks = st.checkbox("Skip blank rows", value=True)
     df_norm = refine_multiline(df_norm)
     df_norm["date"] = coerce_excel_date(df_norm["date"])
-    df_norm = df_norm.applymap(lambda x: x.strip() if isinstance(x, str) else x)
+    df_norm = df_norm.map(lambda x: x.strip() if isinstance(x, str) else x)
     if skip_blanks:
         df_norm = df_norm.dropna(how="all")
     df_norm = df_norm.drop_duplicates()
@@ -7797,7 +7805,7 @@ def _import_clean6(conn, df, tag="Import"):
     df = refine_multiline(df)
     if "date" in df.columns:
         df["date"] = coerce_excel_date(df["date"])
-    df = df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
+    df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
     sort_cols = [col for col in ["date", "customer_name", "phone", "do_code"] if col in df.columns]
     if not sort_cols:
         sort_cols = df.columns.tolist()
@@ -9232,6 +9240,27 @@ def reports_page(conn):
                 st.caption(f"Logged on {created_label} • Last updated {updated_label}")
 
 # ---------- Main ----------
+def sales_page(conn) -> None:
+    import sales_app
+
+    sales_app.init_db()
+    user = st.session_state.user
+    if not user:
+        st.info("Please log in to access the sales workspace.")
+        return
+
+    sales_user = {
+        "user_id": user.get("user_id"),
+        "username": user.get("username"),
+        "role": user.get("role", "staff"),
+        "display_name": user.get("display_name") or user.get("username"),
+        "designation": user.get("designation"),
+        "phone": user.get("phone"),
+    }
+
+    sales_app.render_embedded(sales_user)
+
+
 def main():
     init_ui()
     conn = get_conn()
@@ -9255,6 +9284,7 @@ def main():
                 "Reports",
                 "Duplicates",
                 "Users (Admin)",
+                "Sales",
                 "Maintenance and Service",
             ]
         else:
@@ -9265,6 +9295,7 @@ def main():
                 "Warranties",
                 "Import",
                 "Reports",
+                "Sales",
                 "Maintenance and Service",
             ]
         if st.session_state.page not in pages:
@@ -9293,6 +9324,8 @@ def main():
         duplicates_page(conn)
     elif page == "Users (Admin)":
         users_admin_page(conn)
+    elif page == "Sales":
+        sales_page(conn)
     elif page == "Maintenance and Service":
         service_maintenance_page(conn)
 
